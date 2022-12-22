@@ -12,7 +12,7 @@ Route::controller(PaymentController::class)
 ->prefix('payments')
 ->as('payments')
 ->group(function(){
-    Route::get('/token','token')->name('token');
+    Route::get('/initiatepush','initiateStkPush')->name('initiatepush');
 });
 
 
