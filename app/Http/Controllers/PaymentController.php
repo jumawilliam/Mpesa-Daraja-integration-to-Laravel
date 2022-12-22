@@ -8,8 +8,8 @@ use Carbon\Carbon;
 class PaymentController extends Controller
 {
     public function token(){
-        $consumerKey='6XRKd9SSlvjg6dE9N12q2qyxD7xeN0Hf';
-        $consumerSecret='qHC3Gr2UT0CPj7zd';
+        $consumerKey='';
+        $consumerSecret='';
         $url='https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
         $response=Http::withBasicAuth($consumerKey,$consumerSecret)->get($url);
@@ -25,9 +25,9 @@ class PaymentController extends Controller
         $password=base64_encode($BusinessShortCode.$PassKey.$Timestamp);
         $TransactionType='CustomerPayBillOnline';
         $Amount=1;
-        $PartyA=254712650518;
+        $PartyA=254742980321;
         $PartyB=174379;
-        $PhoneNumber=254712650518;
+        $PhoneNumber=254742980321;
         $CallbackUrl='https://www.princeschool.e-skuli.co.ke/mypayments';
         $AccountReference='Coders base';
         $TransactionDesc='payment for goods';
