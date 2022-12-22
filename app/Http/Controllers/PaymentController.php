@@ -25,9 +25,9 @@ class PaymentController extends Controller
         $password=base64_encode($BusinessShortCode.$PassKey.$Timestamp);
         $TransactionType='CustomerPayBillOnline';
         $Amount=1;
-        $PartyA=254742980321;
+        $PartyA='your phone number';
         $PartyB=174379;
-        $PhoneNumber=254742980321;
+        $PhoneNumber='your phone number';
         $CallbackUrl='https://www.princeschool.e-skuli.co.ke/mypayments';
         $AccountReference='Coders base';
         $TransactionDesc='payment for goods';
