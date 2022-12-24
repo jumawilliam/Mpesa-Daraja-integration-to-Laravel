@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 class PaymentController extends Controller
 {
     public function token(){
@@ -28,7 +29,7 @@ class PaymentController extends Controller
         $PartyA='your phone number';
         $PartyB=174379;
         $PhoneNumber='your phone number';
-        $CallbackUrl='https://www.princeschool.e-skuli.co.ke/mypayments';
+        $CallbackUrl='https://5972-196-202-223-255.eu.ngrok.io/payments/stkcallback';
         $AccountReference='Coders base';
         $TransactionDesc='payment for goods';
 
@@ -51,6 +52,8 @@ class PaymentController extends Controller
     }
 
     public function stkCallback(){
+        $data=file_get_contents('php://input');
+        Storage::disk('local')->put('stk.txt',$data);
 
     }
 }

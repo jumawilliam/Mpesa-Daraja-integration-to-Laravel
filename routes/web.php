@@ -13,6 +13,7 @@ Route::controller(PaymentController::class)
 ->as('payments')
 ->group(function(){
     Route::get('/initiatepush','initiateStkPush')->name('initiatepush');
+    Route::post('/stkcallback','stkCallback')->name('stkcallback');
 });
 
 
