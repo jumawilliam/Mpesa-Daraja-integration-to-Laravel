@@ -10,8 +10,8 @@ use App\Models\Stkrequest;
 class PaymentController extends Controller
 {
     public function token(){
-        $consumerKey='6XRKd9SSlvjg6dE9N12q2qyxD7xeN0Hf';
-        $consumerSecret='qHC3Gr2UT0CPj7zd';
+        $consumerKey='';
+        $consumerSecret='';
         $url='https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
         $response=Http::withBasicAuth($consumerKey,$consumerSecret)->get($url);
@@ -30,7 +30,7 @@ class PaymentController extends Controller
         $PartyA=254712650518;
         $PartyB=174379;
         $PhoneNumber=254712650518;
-        $CallbackUrl='https://7c83-197-156-137-190.eu.ngrok.io/payments/stkcallback';
+        $CallbackUrl='https://76c7-197-156-137-191.eu.ngrok.io/payments/stkcallback';
         $AccountReference='Coders base';
         $TransactionDesc='payment for goods';
 
@@ -113,9 +113,25 @@ class PaymentController extends Controller
 
         }
 
+    }
 
+    public function stkQuery(){
+        $accessToken=$this->token();
+        $BusinessShortCode=174379;
+        $PassKey='bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
+        $url='https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query';
+        $Timestamp=Carbon::now()->format('YmdHis');
+        $Password=base64_encode($BusinessShortCode.$PassKey.$Timestamp);
+        $CheckoutRequestID='ws_CO_25122022133748874712650518';
 
+        $response=Http::withToken($accessToken)->post($url,[
 
+            'BusinessShortCode'=>$BusinessShortCode,
+            'Timestamp'=>$Timestamp,
+            'Password'=>$Password,
+            'CheckoutRequestID'=>$CheckoutRequestID
+        ]);
 
+        return $response;
     }
 }

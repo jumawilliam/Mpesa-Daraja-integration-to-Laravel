@@ -14,6 +14,7 @@ Route::controller(PaymentController::class)
 ->group(function(){
     Route::get('/initiatepush','initiateStkPush')->name('initiatepush');
     Route::post('/stkcallback','stkCallback')->name('stkcallback');
+    Route::get('/stkquery','stkQuery')->name('stkquery');
 });
 
 
