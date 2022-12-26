@@ -10,8 +10,8 @@ use App\Models\Stkrequest;
 class PaymentController extends Controller
 {
     public function token(){
-        $consumerKey='';
-        $consumerSecret='';
+        $consumerKey='6XRKd9SSlvjg6dE9N12q2qyxD7xeN0Hf';
+        $consumerSecret='qHC3Gr2UT0CPj7zd';
         $url='https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
         $response=Http::withBasicAuth($consumerKey,$consumerSecret)->get($url);
@@ -134,4 +134,48 @@ class PaymentController extends Controller
 
         return $response;
     }
+
+    public function registerUrl(){
+        $accessToken=$this->token();
+        $url='https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl';
+        $ShortCode=600998;
+        $ResponseType='Completed';  //Cancelled
+        $ConfirmationURL='https://6b00-154-123-31-239.eu.ngrok.io/payments/confirmation';
+        $ValidationURL='https://6b00-154-123-31-239.eu.ngrok.io/payments/validation';
+
+        $response=Http::withToken($accessToken)->post($url,[
+            'ShortCode'=>$ShortCode,
+            'ResponseType'=>$ResponseType,
+            'ConfirmationURL'=>$ConfirmationURL,
+            'ValidationURL'=>$ValidationURL
+        ]);
+
+        return $response;
+    }
+
+    public function Validation(){
+        $data=file_get_contents('php://input');
+        Storage::disk('local')->put('validation.txt',$data);
+
+        //validation logic
+        
+        return response()->json([
+            'ResultCode'=>0,
+            'ResultDesc'=>'Accepted'
+        ]);
+        
+        /*
+        return response()->json([
+            'ResultCode'=>'C2B00011',
+            'ResultDesc'=>'Rejected'
+        ])
+        */
+    }
+
+    public function Confirmation(){
+        $data=file_get_contents('php://input');
+        Storage::disk('local')->put('confirmation.txt',$data);
+        //save data to DB
+    }
+
 }
