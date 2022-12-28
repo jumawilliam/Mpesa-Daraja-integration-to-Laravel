@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Stkrequest;
+use App\Models\C2brequest;
 class PaymentController extends Controller
 {
     public function token(){
@@ -138,10 +139,10 @@ class PaymentController extends Controller
     public function registerUrl(){
         $accessToken=$this->token();
         $url='https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl';
-        $ShortCode=600998;
+        $ShortCode=600997;
         $ResponseType='Completed';  //Cancelled
-        $ConfirmationURL='https://6b00-154-123-31-239.eu.ngrok.io/payments/confirmation';
-        $ValidationURL='https://6b00-154-123-31-239.eu.ngrok.io/payments/validation';
+        $ConfirmationURL='https://05c8-197-156-137-187.eu.ngrok.io/payments/confirmation';
+        $ValidationURL='https://05c8-197-156-137-187.eu.ngrok.io/payments/validation';
 
         $response=Http::withToken($accessToken)->post($url,[
             'ShortCode'=>$ShortCode,
@@ -151,6 +152,28 @@ class PaymentController extends Controller
         ]);
 
         return $response;
+    }
+
+    public function Simulate(){
+        $accessToken=$this->token();
+        $url='https://sandbox.safaricom.co.ke/mpesa/c2b/v1/simulate';
+        $ShortCode=600997;
+        $CommandID='CustomerPayBillOnline'; //CustomerBuyGoodsOnline
+        $Amount=1;
+        $Msisdn=254708374149;
+        $BillRefNumber='00000';
+
+        $response=Http::withToken($accessToken)->post($url,[
+            'ShortCode'=>$ShortCode,
+            'CommandID'=>$CommandID,
+            'Amount'=>$Amount,
+            'Msisdn'=>$Msisdn,
+            'BillRefNumber'=>$BillRefNumber
+        ]);
+
+        return $response;
+
+
     }
 
     public function Validation(){
@@ -176,6 +199,45 @@ class PaymentController extends Controller
         $data=file_get_contents('php://input');
         Storage::disk('local')->put('confirmation.txt',$data);
         //save data to DB
+        $response=json_decode($data);
+        $TransactionType=$response->TransactionType;
+        $TransID=$response->TransID;
+        $TransTime=$response->TransTime;
+        $TransAmount=$response->TransAmount;
+        $BusinessShortCode=$response->BusinessShortCode;
+        $BillRefNumber=$response->BillRefNumber;
+        $InvoiceNumber=$response->InvoiceNumber;
+        $OrgAccountBalance=$response->OrgAccountBalance;
+        $ThirdPartyTransID=$response->ThirdPartyTransID;
+        $MSISDN=$response->MSISDN;
+        $FirstName=$response->FirstName;
+        $MiddleName=$response->MiddleName;
+        $LastName=$response->LastName;
+
+        $c2b=new C2brequest;
+        $c2b->TransactionType=$TransactionType;
+        $c2b->TransID=$TransID;
+        $c2b->TransTime=$TransTime;
+        $c2b->TransAmount=$TransAmount;
+        $c2b->BusinessShortCode=$BusinessShortCode;
+        $c2b->BillRefNumber=$BillRefNumber;
+        $c2b->InvoiceNumber=$InvoiceNumber;
+        $c2b->OrgAccountBalance=$OrgAccountBalance;
+        $c2b->ThirdPartyTransID=$ThirdPartyTransID;
+        $c2b->MSISDN=$MSISDN;
+        $c2b->FirstName=$FirstName;
+        $c2b->MiddleName=$MiddleName;
+        $c2b->LastName=$LastName;
+        $c2b->save();
+
+
+        return response()->json([
+            'ResultCode'=>0,
+            'ResultDesc'=>'Accepted'
+        ]);
+        
     }
+
+
 
 }

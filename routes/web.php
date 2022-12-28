@@ -18,6 +18,7 @@ Route::controller(PaymentController::class)
     Route::get('/registerurl','registerUrl')->name('registerurl');
     Route::post('/validation','Validation')->name('validation');
     Route::post('/confirmation','Confirmation')->name('confirmation');
+    Route::get('/simulate','Simulate')->name('simulate');
 });
 
 
