@@ -11,8 +11,8 @@ use App\Models\C2brequest;
 class PaymentController extends Controller
 {
     public function token(){
-        $consumerKey='6XRKd9SSlvjg6dE9N12q2qyxD7xeN0Hf';
-        $consumerSecret='qHC3Gr2UT0CPj7zd';
+        $consumerKey='oyKEeipyyKgLZcuBjqK1uO0GPlUAjq79';
+        $consumerSecret='CAxOvB18xr9Cz9oX';
         $url='https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
         $response=Http::withBasicAuth($consumerKey,$consumerSecret)->get($url);
@@ -31,7 +31,7 @@ class PaymentController extends Controller
         $PartyA=254712650518;
         $PartyB=174379;
         $PhoneNumber=254712650518;
-        $CallbackUrl='https://76c7-197-156-137-191.eu.ngrok.io/payments/stkcallback';
+        $CallbackUrl='https://142f-102-166-158-51.eu.ngrok.io/payments/stkcallback';
         $AccountReference='Coders base';
         $TransactionDesc='payment for goods';
 
@@ -141,8 +141,8 @@ class PaymentController extends Controller
         $url='https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl';
         $ShortCode=600997;
         $ResponseType='Completed';  //Cancelled
-        $ConfirmationURL='https://05c8-197-156-137-187.eu.ngrok.io/payments/confirmation';
-        $ValidationURL='https://05c8-197-156-137-187.eu.ngrok.io/payments/validation';
+        $ConfirmationURL='https://a80a-197-156-137-172.sa.ngrok.io/payments/confirmation';
+        $ValidationURL='https://a80a-197-156-137-172.sa.ngrok.io/payments/validation';
 
         $response=Http::withToken($accessToken)->post($url,[
             'ShortCode'=>$ShortCode,
@@ -238,6 +238,151 @@ class PaymentController extends Controller
         
     }
 
+    public function qrcode(){
+        $consumerKey=\config('safaricom.consumer_key');
+        $consumerSecret=\config('safaricom.consumer_secret');
+        
+        $authUrl='https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
+        $request=Http::withBasicAuth($consumerKey,$consumerSecret)->get($authUrl);
+
+        $accessToken=$request['access_token'];
+
+        $MerchantName='ESKULI REVISION';
+        $RefNo='gggsgsgg';
+        $Amount=1;
+        $TrxCode='PB'; //BG-buy goods till, WA-mpesa agent, SM-send money, SB-send to business
+        $CPI=572555;
+
+        $url='https://api.safaricom.co.ke/mpesa/qrcode/v1/generate';
+
+        $response=Http::withToken($accessToken)->post($url,[
+            'MerchantName'=>$MerchantName,
+            'RefNo'=>$RefNo,
+            'Amount'=>$Amount,
+            'TrxCode'=>$TrxCode,
+            'CPI'=>$CPI
+        ]);
+
+        $data=$response['QRCode'];
+
+        return view('welcome')->with('qrcode',$data);
+
+    }
+
+   public function b2c(){
+    $accessToken=$this->token();
+    //return $accessToken;
+    $InitiatorName='testapi';
+    $InitiatorPassword='Safaricom123!';
+    $path=Storage::disk('local')->get('SandboxCertificate.cer');
+    $pk=openssl_pkey_get_public($path);
+
+    openssl_public_encrypt(
+        $InitiatorPassword,
+        $encrypted,
+        $pk,
+        $padding=OPENSSL_PKCS1_PADDING
+
+    );
+
+    //$encrypted
+    $SecurityCredential=base64_encode($encrypted);
+    $CommandID='SalaryPayment'; //BusinessPayment PromotionPayment
+    $Amount=3000;
+    $PartyA=600998;
+    $PartyB=254708374149;
+    $Remarks='remarks';
+    $QueueTimeOutURL='https://142f-102-166-158-51.eu.ngrok.io/payments/b2ctimeout';
+    $ResultURL='https://142f-102-166-158-51.eu.ngrok.io/payments/b2cresult';
+    $Occassion='occassion';
+    $url='https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest';
+
+    $response=Http::withToken($accessToken)->post($url,[
+        'InitiatorName'=>$InitiatorName,
+        'SecurityCredential'=>$SecurityCredential,
+        'CommandID'=>$CommandID,
+        'Amount'=>$Amount,
+        'PartyA'=>$PartyA,
+        'PartyB'=>$PartyB,
+        'Remarks'=>$Remarks,
+        'QueueTimeOutURL'=>$QueueTimeOutURL,
+        'ResultURL'=>$ResultURL,
+        'Occassion'=>$Occassion
+
+    ]);
+
+    return $response;
+
+
+
+   }
+
+   public function b2cResult(){
+    $data=file_get_contents('php://input');
+    Storage::disk('local')->put('b2cresponse.txt',$data);
+
+   }
+
+   public function b2cTimeout(){
+    $data=file_get_contents('php://input');
+    Storage::disk('local')->put('b2ctimeout.txt',$data);
+   }
+
+   public function Reversal(){
+    $accessToken=$this->token();
+    $InitiatorPassword='Safaricom123!';
+    $path=Storage::disk('local')->get('SandboxCertificate.cer');
+    $pk=openssl_pkey_get_public($path);
+
+    openssl_public_encrypt(
+        $InitiatorPassword,
+        $encrypted,
+        $pk,
+        $padding=OPENSSL_PKCS1_PADDING
+
+    );
+
+    //$encrypted
+    $SecurityCredential=base64_encode($encrypted);
+    $CommandID='TransactionReversal';
+    $TransactionID='RAF31LULEV';
+    $TransactionAmount=3000;
+    $ReceiverParty=600998;
+    $ReceiverIdentifierType=11;
+    $ResultURL='https://a80a-197-156-137-172.sa.ngrok.io/payments/reversalResult';
+    $QueueTimeOutURL='https://a80a-197-156-137-172.sa.ngrok.io/payments/reversalTimeout';
+    $Remarks='remarks';
+    $Occassion='occassion';
+    $Initiator='testapi';
+
+    $url='https://sandbox.safaricom.co.ke/mpesa/reversal/v1/request';
+
+    $response=Http::withToken($accessToken)->post($url,[
+        'Initiator'=>$Initiator,
+        'SecurityCredential'=>$SecurityCredential,
+        'CommandID'=>$CommandID,
+        'TransactionID'=>$TransactionID,
+        'Amount'=>$TransactionAmount,
+        'ReceiverParty'=>$ReceiverParty,
+        'ReceiverIdentifierType'=>$ReceiverIdentifierType,
+        'ResultURL'=>$ResultURL,
+        'QueueTimeOutURL'=>$QueueTimeOutURL,
+        'Remarks'=>$Remarks,
+        'Occassion'=>$Occassion
+    ]);
+
+    return $response;
+
+   }
+
+   public function reversalResult(){
+    $data=file_get_contents('php://input');
+    Storage::disk('local')->put('reversalResult.txt',$data);
+   }
+   public function reversalTimeout(){
+    $data=file_get_contents('php://input');
+    Storage::disk('local')->put('reversalTimeout.txt',$data);
+   }
 
 }
