@@ -28,9 +28,9 @@ class PaymentController extends Controller
         $password=base64_encode($BusinessShortCode.$PassKey.$Timestamp);
         $TransactionType='CustomerPayBillOnline';
         $Amount=1;
-        $PartyA=254712650518;
+        $PartyA=254712xxx518;
         $PartyB=174379;
-        $PhoneNumber=254712650518;
+        $PhoneNumber=254712xxx518;
         $CallbackUrl='https://142f-102-166-158-51.eu.ngrok.io/payments/stkcallback';
         $AccountReference='Coders base';
         $TransactionDesc='payment for goods';
