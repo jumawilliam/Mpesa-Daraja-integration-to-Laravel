@@ -11,8 +11,8 @@ use App\Models\C2brequest;
 class PaymentController extends Controller
 {
     public function token(){
-        $consumerKey='oyKEeipyyKgLZcuBjqK1uO0GPlUAjq79';
-        $consumerSecret='CAxOvB18xr9Cz9oX';
+        $consumerKey=''; //your  consumer key
+        $consumerSecret='';//your  consumer secret
         $url='https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
         $response=Http::withBasicAuth($consumerKey,$consumerSecret)->get($url);
